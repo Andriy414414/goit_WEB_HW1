@@ -1,8 +1,7 @@
 from collections import UserDict
 from datetime import date
 import re
-import json
-import pickle
+from abc import ABC, abstractmethod
 
 
 class Field:
@@ -114,7 +113,21 @@ class Record:
         return f'{self.name} {str_phones} {self.birthday}'
 
 
-class AddressBook(UserDict):
+class Books(ABC):
+    @abstractmethod
+    def show_all(self):
+        pass
+
+    @abstractmethod
+    def find_record(self):
+        pass
+
+    @abstractmethod
+    def find_contacts(self):
+        pass
+
+
+class AddressBook(UserDict, Books):
     def add_record(self, record: Record):
         self.data[record.name.value] = record
 
@@ -136,12 +149,10 @@ class AddressBook(UserDict):
             if not counter % records_per_page:
                 yield list_rec
                 list_rec = []
-                print(list_rec)
             if counter == len(self.data):
                 yield list_rec
-                print(list_rec)
 
-    def find_contact(self, input_w: str):
+    def find_contacts(self, input_w: str):
         for record in self.data.values():
             str_val_record = f"{record.name} {' '.join([str(ph) for ph in record.phones])} {record.birthday}"
             if input_w.lower() in str_val_record.lower():
@@ -183,32 +194,10 @@ if __name__ == "__main__":
     ab.add_record(rec_4)
     ab.add_record(rec_5)
 
-    ab.show_all(3)
+    for page in ab.show_all(1):
+        a = " ".join(map(str, page))
+        print(a, end="\n")
 
-
-    # print(rec_1.to_dict_record())
-
-    # for page in ab.paginate(2):
-    #     input()
-    #     a = " ".join(map(str, page))
-    #     print(a, end="\n")
-
-    # for item in ab.find_contact("bo"):
-    #     print(item)
-
-    # di = ab.to_dict_adrbook()
-    # print(di)
-
-    # s = pickle.dumps(ab.to_dict_adrbook())
-    # print(s)
-    #
-    # restored_a = pickle.loads(s)
-    # print(restored_a)
-    #
-    # with open('data_user.json', 'w', encoding='utf-8') as f:
-    #     json.dump(ab.to_dict_adrbook(), f, ensure_ascii=False, indent=4)
-    #
-    # with open('data_user.json', 'r', encoding='utf-8') as f:
-    #     restore_data = json.load(f)
-    #     print(restore_data)
+    for item in ab.find_contacts("bo"):
+         print(item)
 
